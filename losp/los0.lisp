@@ -21,6 +21,7 @@
 (require :x86-pc/ne2k)
 (require :x86-pc/floppy)
 (require :x86-pc/serial)
+(require :x86-pc/ata)
 
 (require :lib/readline)
 (require :lib/toplevel)
@@ -33,7 +34,6 @@
 (require :lib/scheduler)
 
 (require :lib/graphics)
-
 
 ;; (require :lice-0.1/all)
 
@@ -50,6 +50,7 @@
 	#:muerte.ip4
 	#:muerte.mop
 	#:muerte.x86-pc.serial
+	#:muerte.x86-pc.ata
 	#:threading))
 
 (require :lib/shallow-binding)
@@ -508,7 +509,7 @@
   (let ((string (muerte.readline:contextual-readline *repl-readline-context*)))
     (simple-read-from-string string eof-error-p eof-value)))
 
-
+;;   Test functions go here 
 
 (genesis)
 
