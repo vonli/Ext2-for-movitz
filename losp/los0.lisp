@@ -34,6 +34,7 @@
 (require :lib/scheduler)
 
 (require :lib/graphics)
+(require :lib/ext2)
 
 ;; (require :lice-0.1/all)
 
@@ -51,6 +52,7 @@
 	#:muerte.mop
 	#:muerte.x86-pc.serial
 	#:muerte.x86-pc.ata
+	#:muerte.ext2
 	#:threading))
 
 (require :lib/shallow-binding)
@@ -522,57 +524,6 @@
     (muerte.x86-pc.ata::read-partition-table 1 0)    
     (muerte.x86-pc.ata::read-partition-table 1 1)
     muerte.x86-pc.ata::*partitions*))
-
-(defun read-block (controller drive-number partition &optional(offset 0))
-  (let ((partition-data (muerte.x86-pc.ata::get-partition-data controller drive-number partition)))
-    (muerte.x86-pc.ata::lba-read-sector (controller-number-to-constant controller) drive-number  (+ offset (muerte.x86-pc.ata::partition-start-offset partition-data)))))
-
-(defun read-superblock (controller drive-number partition)
-  (append (read-block controller drive-number partition 3)(read-block controller drive-number partition 4)))
-
-;;utilities
-(defun sublist(from to l)
-  (nthcdr from (nbutlast (copy-list l) (- (length l) to))))
-
-
-(defun byte-list-to-number (byte-list)
-  (loop 
-     for byte in byte-list
-       for i from 0 to 511 sum
-       (ash byte (* 8 (if (< 0 i)
-			  (expt 2 i)
-			  0)))))
-
-
-(defun controller-number-to-constant (n)
-  (cond
-    ((= 1 n) muerte.x86-pc.ata::+controller1+)
-    ((= 0 n) muerte.x86-pc.ata::+controller0+)
-    (T (error "Must be 1 or 0"))))
-
-
-;;superblock parsing
-
-(defun get-number-of-inodes (superblock)
-  (byte-list-to-number (sublist 0 3 superblock)))
-
-(defun get-number-of-blocks (superblock)
-  (byte-list-to-number (sublist 4 7 superblock)))
-
-(defun get-start-block (superblock)
-  (byte-list-to-number (sublist 20 23 superblock)))
-
-(defun get-block-size (superblock)
-  (ash 1024 (byte-list-to-number (sublist 24 27 superblock))))
-
-(defun get-blocks-per-group (superblock)
-  (byte-list-to-number (sublist 32 35 superblock)))
-
-(defun get-inodes-per-group (superblock)
-  (byte-list-to-number (sublist 40 43 superblock)))
-
-(defun get-creator-os (superblock)
-  (byte-list-to-number (sublist 72 75 superblock)))
 
 (genesis)
 
