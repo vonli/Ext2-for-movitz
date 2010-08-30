@@ -86,7 +86,7 @@ inconsistent controller numbering in the ata driver"
   (byte-list-to-number (sublist 40 43 superblock)))
 
 (defun get-creator-os (superblock)
-  (byte-list-to-number (sublist 72 75 superblock)))
+  (byte-list-to-number (sublist 72 75  superblock)))
 
 ;; Testing and convenience functions
 
@@ -107,4 +107,11 @@ inconsistent controller numbering in the ata driver"
 				(get-root-inode
 				 ext2
 				 (get-block-table ext2)))))
+
+;; Inode class
+
+(defclass inode()
+  ((inode-data :initarg :inode-data :accessor inode-data)
+   (i-size :accessor i-size)
+   (i-mode :accesor i-mode)))
 
