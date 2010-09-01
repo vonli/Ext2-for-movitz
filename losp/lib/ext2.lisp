@@ -24,6 +24,14 @@
 			  (expt 2 i)
 			  0)))))
 
+(defun big-endian-byte-list-to-number(byte-list)
+  (loop
+     for byte in byte-list
+       for i from (- (length byte-list) 1) downto 0 sum
+       (ash byte (* 8 (if (< 0 i)
+			  (expt 2 i)
+			  0)))))
+
 (defun controller-number-to-constant (n)
   (cond
     ((= 1 n) muerte.x86-pc.ata::+controller1+)
@@ -38,6 +46,7 @@
    (partition :initarg :partition :accessor partition)
    (start-offset :accessor start-offset)
    (superblock :accessor superblock)
+   (block-group-descriptor-table :accessor block-group-descriptor-table)
    (block-size :accessor block-size)
    ))
 
@@ -53,7 +62,10 @@ inconsistent controller numbering in the ata driver"
    (superblock ext2) (append
 			   (read-drive-block ext2 3)
 			   (read-drive-block ext2 4))
-   (block-size ext2) (get-block-size (superblock ext2))))
+   (block-size ext2) (get-block-size (superblock ext2))
+   (block-group-descriptor-table ext2) (read-block ext2 (ceiling (/ 2048 (block-size ext2))))))
+
+
 
 (defmethod read-drive-block ((ext2 ext2) block-address)
    (muerte.x86-pc.ata::lba-read-sector (controller ext2)
@@ -93,6 +105,9 @@ inconsistent controller numbering in the ata driver"
 (defun make-ext2( controller drive partition)
   (make-instance 'ext2 :controller 0 :drive-number 0 :partition 0))
 
+(defun make-inode (inode-data)
+  (make-instance 'inode :inode-data inode-data))
+
 (defun get-block-table (ext2)
   (read-block ext2 2))
 
@@ -115,3 +130,6 @@ inconsistent controller numbering in the ata driver"
    (i-size :accessor i-size)
    (i-mode :accesor i-mode)))
 
+(defmethod initialize-instance :after ((inode inode) &rest args)
+  (setf
+   (i-mode inode)(big-endian-byte-list-to-number (sublist 0 1 (inode-data inode)))))

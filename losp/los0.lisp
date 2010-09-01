@@ -52,7 +52,6 @@
 	#:muerte.mop
 	#:muerte.x86-pc.serial
 	#:muerte.x86-pc.ata
-	#:muerte.ext2
 	#:threading))
 
 (require :lib/shallow-binding)
@@ -526,9 +525,4 @@
     muerte.x86-pc.ata::*partitions*))
 
 (genesis)
-
-
-
-
-
 
